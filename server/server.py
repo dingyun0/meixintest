@@ -1,6 +1,7 @@
 import requests
 import json
 import os
+import pandas as pd
 from dotenv import load_dotenv
 load_dotenv()
 api_key=os.getenv('API_KEY')
@@ -34,8 +35,29 @@ def run_workflow(inputs,user, response_mode="blocking"):
 def get_outputs(output):
     output_text=output['data']['outputs']['text']
     print(output_text)
+    lines = output_text.strip().split('\n')
+    header = lines[0].split('|')
+    data_rows = [line.split('|') for line in lines[2:]] 
+    cleaned_data = []
+    for row in data_rows:
+        cleaned_row = [item.strip() for item in row]
+        cleaned_data.append(cleaned_row)
+    return header, cleaned_data
+
+def save_to_excel(header, data,folder='../output_files', filename='output.xlsx'):
+    os.makedirs(folder,exist_ok=True)
+    file_path=os.path.join(folder,filename)
+    df = pd.DataFrame(data, columns=header)  # 创建 DataFrame
+    df.to_excel(file_path, index=False)  # 保存为 Excel 文件
+    print(f"数据已保存到 {file_path}") 
     
-    
+def summarize_data(data):
+    total_expense = 0.0
+    for row in data:
+        expense_amount = float(row[4])  # 第五列是支出金额
+        total_expense += expense_amount
+    print(f"总支出: {total_expense:.2f}")
+        
 if __name__=="__main__":
     inputs={
         "user_id":"1",
@@ -45,4 +67,10 @@ if __name__=="__main__":
     result=run_workflow(inputs,user)
     if result:
         print("工作流结果为：",result)
-        get_outputs(result)
+        header, cleaned_data = get_outputs(result)
+        
+        # 保存到 Excel
+        save_to_excel(header, cleaned_data)
+
+        # 汇总数据
+        summarize_data(cleaned_data)
