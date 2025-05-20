@@ -5,9 +5,10 @@ import pandas as pd
 from dotenv import load_dotenv
 load_dotenv()
 api_key=os.getenv('API_KEY')
+api_url=os.getenv('API_URL')
 
 def run_workflow(inputs,user, response_mode="blocking"):
-    workflow_url ="https://dify.bluefocuslibrary.com/v1/workflows/run"
+    workflow_url =f"{api_url}/workflows/run"
     headers={
         'Authorization': f'Bearer {api_key}',
         'Content-Type':'application/json'
