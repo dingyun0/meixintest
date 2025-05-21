@@ -13,7 +13,7 @@ def run_workflow(inputs,user, response_mode="blocking"):
         'Authorization': f'Bearer {api_key}',
         'Content-Type':'application/json'
     }
-
+    
     data = {
         "inputs": inputs,
         "response_mode": response_mode,
